@@ -65,16 +65,34 @@ Matches official Enhance schema:
 }
 ```
 
-#### POST `/orgs/{org_id}/domains/check`
-Request:
+#### POST `/orgs/{org_id}/domains/check` (Enhance-compatible Pre-flight)
+- **Input Cleaning**: Strips protocols (`https://`), trailing slashes, and ports.
+- **FQDN Syntax Check**: Requires at least one dot (host + TLD) and RFC-compliant labels. Missing TLD (e.g., `sweetcrumbs`) returns `HTTP 400 Bad Request`.
+- **TLD Verification (IANA & ccTLDs)**: Validates against 1,436 official IANA root TLDs plus multi-part ccTLDs (`.co.in`, `.org.uk`, etc.). Non-existent or fake TLDs (e.g., `.lbcom`) return `status: "prohibited"`.
+- **Reserved TLDs**: `.local`, `.test`, `.lan`, `.internal`, `localhost` return `status: "prohibited"`.
+- **Existing Org Domain**: Returns `status: "in-use-same-org"` with associated `websiteId`.
+- **Globally Taken Domain**: Returns `status: "in-use-other-org"`.
+
 ```json
-{ "domain": "example.com" }
-```
-Response:
-```json
+// Example: Fake TLD check
+// POST /orgs/{org_id}/domains/check -> {"domain": "soham.lbcom"}
+{
+  "status": "prohibited",
+  "websiteId": null
+}
+
+// Example: Valid available domain
+// POST /orgs/{org_id}/domains/check -> {"domain": "sweetcrumbs.in"}
 {
   "status": "available",
   "websiteId": null
+}
+
+// Example: Existing domain in org
+// POST /orgs/{org_id}/domains/check -> {"domain": "milesweb.com"}
+{
+  "status": "in-use-same-org",
+  "websiteId": "01000000-0000-0000-0000-000000000001"
 }
 ```
 

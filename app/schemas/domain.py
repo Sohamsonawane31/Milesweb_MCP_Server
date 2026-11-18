@@ -13,6 +13,7 @@ class DomainOut(BaseModel):
     id: UUID
     orgId: UUID
     domain: str
+    websiteId: Optional[UUID] = None
     dkim: bool = False
     spf: bool = False
     cloudflareStatus: CloudflareStatus = "Disconnected"
