@@ -170,6 +170,35 @@ async def list_org_domains(
     return DomainsListing(items=paginated, total=total)
 
 
+# ── GET /orgs/{org_id}/domains/tlds ───────────────────────────
+@router.get("/tlds")
+async def list_supported_tlds(
+    org_id: UUID = Path(..., description="Organization UUID"),
+    search: Optional[str] = Query(None, description="Filter TLDs by prefix/substring, e.g. 'com', 'in', 'ai'"),
+    limit: int = Query(50, ge=1, le=500, description="Max TLDs to return"),
+):
+    """
+    Returns verified hostable TLDs and recognized multi-part ccTLDs.
+    Used by client UI for domain search, autocomplete, and extension dropdowns.
+    """
+    _validate_org(org_id)
+
+    priority_order = [".com", ".in", ".co.in", ".net", ".org", ".io", ".ai", ".dev", ".app"]
+    all_tlds = [f".{t}" for t in sorted(ALL_VALID_TLDS)]
+
+    if search:
+        term = search.strip().lower().lstrip(".")
+        all_tlds = [t for t in all_tlds if term in t.lstrip(".")]
+
+    reordered = [t for t in priority_order if t in all_tlds] + [t for t in all_tlds if t not in priority_order]
+
+    return {
+        "total": len(reordered),
+        "count": len(reordered[:limit]),
+        "tlds": reordered[:limit],
+    }
+
+
 # ── POST /orgs/{org_id}/domains/check (Enhance-compatible) ───
 @router.post("/check", response_model=DomainCheckResponse)
 async def check_domain(
