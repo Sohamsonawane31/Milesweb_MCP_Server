@@ -164,7 +164,7 @@ DOMAIN_REGISTRATION_PERIODS = [1, 2, 3, 5]
 # ---------------------------------------------------------------------------
 PLAN_PRICING = {
     # plan_id -> pricing
-    1001: {  # Starter
+    1204: {  # Starter
         "inr": {
             "monthly":      {"original": 399, "discounted": 199, "renewal": 299},
             "annually":     {"original": 399, "discounted": 159, "renewal": 229},
@@ -179,7 +179,7 @@ PLAN_PRICING = {
         "extra_months":  {"monthly": 0,  "annually": 0,  "triennially": 0},
         "free_domain":   {"annually": True, "triennially": True, "monthly": False},
     },
-    1002: {  # Premium
+    1205: {  # Premium
         "inr": {
             "monthly":      {"original": 799, "discounted": 299, "renewal": 549},
             "annually":     {"original": 799, "discounted": 249, "renewal": 499},
@@ -194,7 +194,7 @@ PLAN_PRICING = {
         "extra_months":  {"monthly": 0,  "annually": 0,  "triennially": 2},
         "free_domain":   {"annually": True, "triennially": True, "monthly": False},
     },
-    1003: {  # Unlimited
+    1227: {  # Unlimited
         "inr": {
             "monthly":      {"original": 1199, "discounted": 399, "renewal": 799},
             "annually":     {"original": 1199, "discounted": 349, "renewal": 699},
@@ -210,7 +210,7 @@ PLAN_PRICING = {
         "free_domain":   {"annually": True, "triennially": True, "monthly": False},
         "best_value":    True,
     },
-    1004: {  # Cloud Startup
+    1210: {  # Cloud Startup
         "inr": {
             "monthly":      {"original": 1999, "discounted": 799, "renewal": 1399},
             "annually":     {"original": 1999, "discounted": 699, "renewal": 1299},
@@ -239,7 +239,7 @@ TAX_RATES = {
 MOCK_PLANS = [
     # ── Starter ──────────────────────────────────────────────
     {
-        "id": 1001,
+        "id": 1204,
         "name": "Starter",
         "orgId": ORG_ID,
         "resources": [
@@ -315,7 +315,7 @@ MOCK_PLANS = [
 
     # ── Premium ──────────────────────────────────────────────
     {
-        "id": 1002,
+        "id": 1205,
         "name": "Premium",
         "orgId": ORG_ID,
         "resources": [
@@ -390,7 +390,7 @@ MOCK_PLANS = [
 
     # ── Unlimited (Best Value) ───────────────────────────────
     {
-        "id": 1003,
+        "id": 1227,
         "name": "Unlimited",
         "orgId": ORG_ID,
         "resources": [
@@ -470,7 +470,7 @@ MOCK_PLANS = [
 
     # ── Cloud Startup ────────────────────────────────────────
     {
-        "id": 1004,
+        "id": 1210,
         "name": "Cloud Startup",
         "orgId": ORG_ID,
         "resources": [
@@ -566,23 +566,23 @@ PLAN_COMPARISON = {
             "features": [
                 {
                     "label": "Websites",
-                    "values": {"1001": "1", "1002": "25", "1003": "Unlimited", "1004": "Unlimited"},
+                    "values": {"1204": "1", "1205": "25", "1227": "Unlimited", "1210": "Unlimited"},
                 },
                 {
                     "label": "Free domain",
-                    "values": {"1001": True, "1002": True, "1003": True, "1004": True},
+                    "values": {"1204": True, "1205": True, "1227": True, "1210": True},
                 },
                 {
                     "label": "NVMe storage",
-                    "values": {"1001": "10 GB", "1002": "50 GB", "1003": "75 GB", "1004": "100 GB"},
+                    "values": {"1204": "10 GB", "1205": "50 GB", "1227": "75 GB", "1210": "100 GB"},
                 },
                 {
                     "label": "Backups",
-                    "values": {"1001": "Daily", "1002": "Daily", "1003": "Daily & On-Demand", "1004": "Daily & On-Demand"},
+                    "values": {"1204": "Daily", "1205": "Daily", "1227": "Daily & On-Demand", "1210": "Daily & On-Demand"},
                 },
                 {
                     "label": "Email accounts",
-                    "values": {"1001": "1", "1002": "50", "1003": "Unlimited", "1004": "Unlimited"},
+                    "values": {"1204": "1", "1205": "50", "1227": "Unlimited", "1210": "Unlimited"},
                 },
             ],
         },
@@ -591,31 +591,31 @@ PLAN_COMPARISON = {
             "features": [
                 {
                     "label": "WordPress ready",
-                    "values": {"1001": True, "1002": True, "1003": True, "1004": True},
+                    "values": {"1204": True, "1205": True, "1227": True, "1210": True},
                 },
                 {
                     "label": "Free SSL",
-                    "values": {"1001": True, "1002": True, "1003": True, "1004": True},
+                    "values": {"1204": True, "1205": True, "1227": True, "1210": True},
                 },
                 {
                     "label": "AI website builder",
-                    "values": {"1001": "40 credits", "1002": "50 credits", "1003": "65 credits", "1004": "75 credits"},
+                    "values": {"1204": "40 credits", "1205": "50 credits", "1227": "65 credits", "1210": "75 credits"},
                 },
                 {
                     "label": "AI agent for WordPress",
-                    "values": {"1001": True, "1002": True, "1003": True, "1004": True},
+                    "values": {"1204": True, "1205": True, "1227": True, "1210": True},
                 },
                 {
                     "label": "Node.js web apps",
-                    "values": {"1001": None, "1002": None, "1003": "1", "1004": "3"},
+                    "values": {"1204": None, "1205": None, "1227": "1", "1210": "3"},
                 },
                 {
                     "label": "Priority 24/7 expert support",
-                    "values": {"1001": True, "1002": True, "1003": True, "1004": True},
+                    "values": {"1204": True, "1205": True, "1227": True, "1210": True},
                 },
                 {
                     "label": "OpenClaw AI ready",
-                    "values": {"1001": None, "1002": None, "1003": None, "1004": True},
+                    "values": {"1204": None, "1205": None, "1227": None, "1210": True},
                 },
             ],
         },
@@ -624,23 +624,23 @@ PLAN_COMPARISON = {
             "features": [
                 {
                     "label": "LiteSpeed Server",
-                    "values": {"1001": True, "1002": True, "1003": True, "1004": True},
+                    "values": {"1204": True, "1205": True, "1227": True, "1210": True},
                 },
                 {
                     "label": "CDN",
-                    "values": {"1001": True, "1002": True, "1003": True, "1004": True},
+                    "values": {"1204": True, "1205": True, "1227": True, "1210": True},
                 },
                 {
                     "label": "Free website migration",
-                    "values": {"1001": True, "1002": True, "1003": True, "1004": True},
+                    "values": {"1204": True, "1205": True, "1227": True, "1210": True},
                 },
                 {
                     "label": "Instant malware cleanup",
-                    "values": {"1001": True, "1002": True, "1003": True, "1004": True},
+                    "values": {"1204": True, "1205": True, "1227": True, "1210": True},
                 },
                 {
                     "label": "Powerful control panel",
-                    "values": {"1001": True, "1002": True, "1003": True, "1004": True},
+                    "values": {"1204": True, "1205": True, "1227": True, "1210": True},
                 },
             ],
         },
