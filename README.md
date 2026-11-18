@@ -1,7 +1,35 @@
-# Enhance Mock Control Panel API (MilesWeb Edition)
+# Enhance Mock Control Panel API & OAuth 2.1 Server (MilesWeb Edition)
 
-Mock implementation of the **Enhance Control Panel API** for organization domains, domain search, and hosting plans.  
-Built with **FastAPI + Pydantic v2 + Uvicorn** for local testing, frontend integration, and MCP workflows.
+Mock implementation of the **Enhance Control Panel API** and **OAuth 2.1 Authorization Server (compliant with MCP Authorization Specification 2026-07-28)** for organization domains, hosting plans, and AI assistant authentication (ChatGPT and Claude).  
+Built with **FastAPI + Pydantic v2 + PyJWT + Uvicorn** for local testing, frontend integration, and MCP workflows.
+
+---
+
+## Live Render Deployment
+
+- **Base URL:** `https://milesweb-mcp-server.onrender.com`
+- **Metadata Discovery:** [https://milesweb-mcp-server.onrender.com/.well-known/oauth-authorization-server](https://milesweb-mcp-server.onrender.com/.well-known/oauth-authorization-server)
+- **Interactive Swagger Docs:** [https://milesweb-mcp-server.onrender.com/docs](https://milesweb-mcp-server.onrender.com/docs)
+- **Authorize Endpoint (Popup):** `https://milesweb-mcp-server.onrender.com/oauth/authorize`
+- **Token Endpoint:** `https://milesweb-mcp-server.onrender.com/oauth/token`
+
+---
+
+## OAuth 2.1 Authorization Server (MCP Spec 2026-07-28)
+
+| Method | Path | Description |
+|---|---|---|
+| `GET` | `/.well-known/oauth-authorization-server` | RFC 8414 OAuth 2.0 Authorization Server Metadata discovery |
+| `POST` | `/oauth/register` | RFC 7591 Dynamic Client Registration endpoint (client credentials fallback) |
+| `GET` | `/oauth/authorize` | Responsive browser popup for user login (Tab 1) & signup (Tab 2) |
+| `POST` | `/oauth/authorize/submit` | Handles login/signup form submission & issues single-use auth code |
+| `POST` | `/oauth/token` | Exchanges authorization code with PKCE (S256) for signed HS256 JWT access token |
+| `GET` | `/api/auth/me` | Validates Bearer token and returns authenticated user claims |
+
+### Pre-seeded Demo Credentials
+- **Email:** `demo@milesweb.com`
+- **Password:** `password123`
+- **Org ID:** `c1a2b3d4-e5f6-7890-abcd-ef1234567890`
 
 ---
 
@@ -145,5 +173,9 @@ Calculates:
 Run the automated endpoint test suite:
 
 ```bash
+# Test Enhance domains & plans
 python test_endpoints.py
+
+# Test OAuth 2.1 authorization server, PKCE S256, & JWT issuance
+python test_oauth.py
 ```

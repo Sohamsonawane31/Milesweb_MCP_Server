@@ -51,9 +51,9 @@ r = client.get(f'/orgs/{org}/plans')
 print('Status:', r.status_code, '| Plans count:', len(r.json()['items']))
 
 print("\n=== 4. GET /orgs/{org_id}/plans/{plan_id} ===")
-r = client.get(f'/orgs/{org}/plans/1003')
+r = client.get(f'/orgs/{org}/plans/1227')
 p = r.json()
-print(f"Plan 1003: {p['name']} | cgroupLimits: {p['cgroupLimits']['memoryLimit']} bytes | fsQuota: {p['fsQuotaLimit']['totalAvailable']} bytes")
+print(f"Plan 1227: {p['name']} | cgroupLimits: {p['cgroupLimits']['memoryLimit']} bytes | fsQuota: {p['fsQuotaLimit']['totalAvailable']} bytes")
 
 print("\n=== 5. GET /orgs/{org_id}/plans/pricing (INR 36m) ===")
 r = client.get(f'/orgs/{org}/plans/pricing?currency=inr&billingCycle=triennially')

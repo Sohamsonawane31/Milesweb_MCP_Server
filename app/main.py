@@ -1,11 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routers import domains, plans
+from app.routers import auth_router, domains, plans
 
 app = FastAPI(
-    title="Enhance Mock Control Panel API",
-    description="Mock implementation of Enhance org domain & plan endpoints for local testing and MCP integration.",
+    title="MilesWeb Enhance Mock Control Panel & OAuth 2.1 Server",
+    description="Mock implementation of Enhance org domain & plan endpoints and MCP OAuth 2.1 Authorization Server.",
     version="1.0.0",
 )
 
@@ -17,6 +17,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(auth_router.router)
 app.include_router(domains.router)
 app.include_router(plans.router)
 
