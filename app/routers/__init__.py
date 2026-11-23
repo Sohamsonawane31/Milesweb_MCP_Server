@@ -1,3 +1,3 @@
-from . import auth_router, domains, plans
+from . import auth_router, customer_router, phase2_router
 
-__all__ = ["auth_router", "domains", "plans"]
+__all__ = ["auth_router", "customer_router", "phase2_router"]

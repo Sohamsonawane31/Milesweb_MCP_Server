@@ -1,0 +1,65 @@
+{
+  "customers": [
+    {
+      "clientId": 12345,
+      "name": "Rahul Sharma",
+      "email": "rahul@example.com",
+      "status": "Active",
+      "hostingServices": [
+        {"serviceId": 1001, "domain": "rahulcloud.example", "hostingPlan": "Business Hosting", "status": "Active", "expiryDate": "2027-12-31"}
+      ],
+      "domains": [
+        {"domainId": 2001, "domainName": "rahulcloud.example", "status": "Active", "registrationDate": "2025-12-31", "expiryDate": "2027-12-31", "autoRenew": true}
+      ]
+    },
+    {
+      "clientId": 12346,
+      "name": "Amit Patil",
+      "email": "amit@example.com",
+      "status": "Active",
+      "hostingServices": [
+        {"serviceId": 1002, "domain": "amitworkspace.example", "hostingPlan": "Shared Hosting", "status": "Active", "expiryDate": "2026-09-15"}
+      ],
+      "domains": [
+        {"domainId": 2002, "domainName": "amitworkspace.example", "status": "Active", "registrationDate": "2025-09-15", "expiryDate": "2026-09-15", "autoRenew": true},
+        {"domainId": 2003, "domainName": "amitportfolio.example", "status": "Pending", "registrationDate": "2026-10-03", "expiryDate": "2027-10-03", "autoRenew": true},
+        {"domainId": 2004, "domainName": "amitarchive.example", "status": "Expired", "registrationDate": "2024-05-01", "expiryDate": "2025-05-01", "autoRenew": false}
+      ]
+    },
+    {
+      "clientId": 12347,
+      "name": "Priya Joshi",
+      "email": "priya@example.com",
+      "status": "Active",
+      "hostingServices": [],
+      "domains": []
+    },
+    {
+      "clientId": 12348,
+      "name": "Neha Kulkarni",
+      "email": "neha@example.com",
+      "status": "Active",
+      "hostingServices": [
+        {"serviceId": 1003, "domain": "nehastore.example", "hostingPlan": "Business Hosting", "status": "Active", "expiryDate": "2027-03-20"},
+        {"serviceId": 1004, "domain": "nehablog.example", "hostingPlan": "WordPress Hosting", "status": "Suspended", "expiryDate": "2026-01-14"}
+      ],
+      "domains": [
+        {"domainId": 2005, "domainName": "nehastore.example", "status": "Active", "registrationDate": "2025-03-20", "expiryDate": "2027-03-20", "autoRenew": true},
+        {"domainId": 2006, "domainName": "nehablog.example", "status": "Active", "registrationDate": "2025-01-14", "expiryDate": "2026-01-14", "autoRenew": false},
+        {"domainId": 2007, "domainName": "nehadesigns.example", "status": "Pending", "registrationDate": "2026-11-01", "expiryDate": "2027-11-01", "autoRenew": true},
+        {"domainId": 2008, "domainName": "nehalabs.example", "status": "Expired", "registrationDate": "2024-08-08", "expiryDate": "2025-08-08", "autoRenew": false}
+      ]
+    },
+    {
+      "clientId": 12349,
+      "name": "Karan Deshmukh",
+      "email": "karan@example.com",
+      "status": "Active",
+      "hostingServices": [],
+      "domains": [
+        {"domainId": 2009, "domainName": "karanconsulting.example", "status": "Active", "registrationDate": "2025-06-30", "expiryDate": "2026-06-30", "autoRenew": true},
+        {"domainId": 2010, "domainName": "karanprojects.example", "status": "Suspended", "registrationDate": "2025-02-12", "expiryDate": "2026-02-12", "autoRenew": false}
+      ]
+    }
+  ]
+}
