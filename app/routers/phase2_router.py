@@ -8,6 +8,7 @@ from fastapi import APIRouter, Depends, Header, HTTPException, Request, status
 
 from app.config import Settings, get_settings
 from app.services.phase2_catalog import Phase2Catalog, catalog
+from app.services.token_service import decode_access_token
 
 router = APIRouter(tags=["Phase 2 Enhance mock"])
 
@@ -31,7 +32,21 @@ def authenticated_client(
     if not connector_key or not settings.connector_api_key or not hmac.compare_digest(connector_key, settings.connector_api_key):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized")
     scheme, _, bearer_token = (authorization or "").partition(" ")
-    client_id = parse_test_tokens(settings.phase2_test_tokens).get(bearer_token) if scheme.lower() == "bearer" else None
+    if scheme.lower() != "bearer" or not bearer_token:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized")
+
+    client_id: int | None = None
+    # 1. Dynamically verify and decode token as signed JWT
+    claims = decode_access_token(bearer_token, settings=settings)
+    if claims:
+        raw_id = claims.get("clientId") or claims.get("sub")
+        if raw_id is not None and str(raw_id).isdigit():
+            client_id = int(raw_id)
+
+    # 2. Fallback to static test tokens for backwards compatibility
+    if client_id is None:
+        client_id = parse_test_tokens(settings.phase2_test_tokens).get(bearer_token)
+
     if client_id is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized")
     return client_id

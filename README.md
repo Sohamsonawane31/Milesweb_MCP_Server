@@ -30,6 +30,43 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
 ## API
 
+### Authentication & Token Verification
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| POST | `/auth/login` | Authenticate against dummy customer data and receive a dynamic signed JWT access token |
+| GET | `/auth/me` | Return the profile of the caller verified dynamically from their Bearer JWT token |
+| POST | `/auth/verify` | Dynamically verify an access token supplied in request body (`{"token": "..."}`) |
+| GET | `/auth/verify` | Dynamically verify an access token passed in `Authorization: Bearer <token>` or `?token=` |
+
+#### Pre-seeded Demo Accounts
+
+All fixture accounts in `data/customers.json` can be logged into using password `password123`:
+- `rahul@example.com` (Client ID: `12345`)
+- `amit@example.com` (Client ID: `12346`)
+- `priya@example.com` (Client ID: `12347`)
+- `neha@example.com` (Client ID: `12348`)
+- `karan@example.com` (Client ID: `12349`)
+
+```powershell
+# Login to obtain dynamic JWT token
+curl.exe -X POST "http://127.0.0.1:8000/auth/login" `
+  -H "Content-Type: application/json" `
+  -d '{"email": "amit@example.com", "password": "password123"}'
+```
+
+```json
+{
+  "email": "amit@example.com",
+  "clientId": "12346",
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "name": "Amit Patil",
+  "tokenType": "bearer"
+}
+```
+
+### Customer Connector API
+
 All customer routes require `X-Connector-Key`. They only expose `GET`; other methods return `405 Method Not Allowed`.
 
 | Method | Path | Purpose |

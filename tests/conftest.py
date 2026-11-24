@@ -1,7 +1,7 @@
 import os
 
 os.environ["CONNECTOR_API_KEY"] = "test-connector-key"
-os.environ["PHASE2_TEST_TOKENS"] = "test-token-rahul:12345,test-token-amit:12346,test-token-neha:12348"
+os.environ["PHASE2_TEST_TOKENS"] = "test-token-rahul:12345,test-token-amit:12346,test-token-neha:12348,mock-token-rahul:12345,mock-token-amit:12346,mock-token-neha:12348"
 
 import pytest
 from fastapi.testclient import TestClient

@@ -4,6 +4,7 @@
       "clientId": 12345,
       "name": "Rahul Sharma",
       "email": "rahul@example.com",
+      "password": "password123",
       "status": "Active",
       "hostingServices": [
         {"serviceId": 1001, "domain": "rahulcloud.example", "hostingPlan": "Business Hosting", "status": "Active", "expiryDate": "2027-12-31"}
@@ -16,6 +17,7 @@
       "clientId": 12346,
       "name": "Amit Patil",
       "email": "amit@example.com",
+      "password": "password123",
       "status": "Active",
       "hostingServices": [
         {"serviceId": 1002, "domain": "amitworkspace.example", "hostingPlan": "Shared Hosting", "status": "Active", "expiryDate": "2026-09-15"}
@@ -30,6 +32,7 @@
       "clientId": 12347,
       "name": "Priya Joshi",
       "email": "priya@example.com",
+      "password": "password123",
       "status": "Active",
       "hostingServices": [],
       "domains": []
@@ -38,6 +41,7 @@
       "clientId": 12348,
       "name": "Neha Kulkarni",
       "email": "neha@example.com",
+      "password": "password123",
       "status": "Active",
       "hostingServices": [
         {"serviceId": 1003, "domain": "nehastore.example", "hostingPlan": "Business Hosting", "status": "Active", "expiryDate": "2027-03-20"},
@@ -54,6 +58,7 @@
       "clientId": 12349,
       "name": "Karan Deshmukh",
       "email": "karan@example.com",
+      "password": "password123",
       "status": "Active",
       "hostingServices": [],
       "domains": [

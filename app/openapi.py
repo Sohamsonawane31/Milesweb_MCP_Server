@@ -35,11 +35,19 @@ def install_openapi_security(app: FastAPI) -> None:
             "description": "Shared connector key for the trusted MCP service.",
         }
 
-        for path_item in schema.get("paths", {}).values():
+        for path, path_item in schema.get("paths", {}).items():
             for operation in path_item.values():
-                if isinstance(operation, dict) and "Phase 2 Enhance mock" in operation.get("tags", []):
+                if not isinstance(operation, dict):
+                    continue
+                if "Phase 2 Enhance mock" in operation.get("tags", []):
                     # One requirement object means both schemes are required.
                     operation["security"] = [{"BearerAuth": [], "ConnectorKeyAuth": []}]
+                elif path == "/auth/me":
+                    operation["security"] = [{"BearerAuth": []}]
+                    if "parameters" in operation:
+                        operation["parameters"] = [
+                            p for p in operation["parameters"] if p.get("name", "").lower() != "authorization"
+                        ]
 
         app.openapi_schema = schema
         return app.openapi_schema

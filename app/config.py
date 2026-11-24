@@ -12,6 +12,9 @@ class Settings(BaseSettings):
     # Development-only opaque bearer-token to client-id mappings. This mock
     # emulates the already-verified identity the MCP server forwards.
     phase2_test_tokens: str = ""
+    jwt_secret_key: str = "milesweb-mcp-dev-secret-change-me"
+    jwt_algorithm: str = "HS256"
+    jwt_expires_in_minutes: int = 1440
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 

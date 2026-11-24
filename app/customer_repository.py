@@ -23,5 +23,16 @@ class CustomerRepository:
                 return customer
         return None
 
+    def get_customer_by_email(self, email: str) -> dict[str, Any] | None:
+        """Return a customer dictionary matching email (case-insensitive), or None."""
+        with self.database_path.open("r", encoding="utf-8") as database:
+            customers = json.load(database)
+
+        target = email.strip().lower()
+        for customer in customers["customers"]:
+            if customer.get("email", "").strip().lower() == target:
+                return customer
+        return None
+
 
 repository = CustomerRepository()

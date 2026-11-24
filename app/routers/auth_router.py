@@ -1,19 +1,37 @@
-from fastapi import APIRouter, HTTPException, status
+"""Authentication and token verification routes."""
+
+from typing import Annotated, Any
+
+from fastapi import APIRouter, Depends, Header, HTTPException, Query, status
+from fastapi.security import HTTPAuthorizationCredentials
 from pydantic import BaseModel, Field
 
+from app.config import Settings, get_settings
+from app.customer_repository import CustomerRepository, repository
+from app.security import get_current_client_id, http_bearer
+from app.services.token_service import (
+    create_access_token,
+    decode_access_token,
+    verify_access_token,
+)
+
 router = APIRouter(prefix="/auth", tags=["auth"])
+
+
+def get_repository() -> CustomerRepository:
+    return repository
 
 
 class LoginRequest(BaseModel):
     email: str = Field(
         ...,
-        examples=["demo@milesweb.com"],
-        description="User email address",
+        examples=["rahul@example.com"],
+        description="User email address (e.g. rahul@example.com, amit@example.com, neha@example.com)",
     )
     password: str = Field(
         ...,
         examples=["password123"],
-        description="User account password",
+        description="User account password (default: password123)",
     )
 
 
@@ -21,17 +39,49 @@ class LoginResponse(BaseModel):
     email: str
     clientId: str
     token: str
+    name: str | None = None
+    tokenType: str = "bearer"
+
+
+class VerifyTokenRequest(BaseModel):
+    token: str = Field(
+        ...,
+        description="JWT access token to verify dynamically",
+    )
+
+
+class VerifyTokenResponse(BaseModel):
+    valid: bool
+    clientId: str
+    email: str
+    name: str | None = None
+    claims: dict[str, Any]
+
+
+class UserProfileResponse(BaseModel):
+    clientId: int
+    name: str
+    email: str
+    status: str
 
 
 @router.post("/login", response_model=LoginResponse)
-async def login(payload: LoginRequest):
+async def login(
+    payload: LoginRequest,
+    customer_repo: CustomerRepository = Depends(get_repository),
+    settings: Settings = Depends(get_settings),
+):
     """
-    Dummy mock login endpoint for client-side login integration testing.
+    Authenticate user against dummy customer fixture data.
 
-    Accepts any non-empty email/password combination for development/testing.
-    Returns a dummy access token suitable for integration testing.
+    Checks whether the email exists in dummy data (`data/customers.json`).
+    If found and credentials match, generates and returns a dynamic signed
+    JWT access token with customer details and clientId.
     """
-    if not payload.email.strip() or not payload.password.strip():
+    email_clean = payload.email.strip()
+    password_clean = payload.password.strip()
+
+    if not email_clean or not password_clean:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail={
@@ -40,8 +90,128 @@ async def login(payload: LoginRequest):
             },
         )
 
+    customer = customer_repo.get_customer_by_email(email_clean)
+    if not customer:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail={
+                "error": "user_not_found",
+                "message": f"User with email '{email_clean}' does not exist in dummy data",
+            },
+        )
+
+    # Validate password if configured on the customer fixture
+    expected_password = customer.get("password")
+    if expected_password and payload.password != expected_password:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail={
+                "error": "invalid_credentials",
+                "message": "Invalid password",
+            },
+        )
+
+    # Generate a dynamic signed JWT access token for this customer
+    token = create_access_token(
+        data={
+            "sub": str(customer["clientId"]),
+            "clientId": customer["clientId"],
+            "email": customer["email"],
+            "name": customer.get("name", ""),
+        },
+        settings=settings,
+    )
+
     return LoginResponse(
-        email=payload.email.strip(),
-        clientId="test-client-001",
-        token="dummy_test_token_1234567890",
+        email=customer["email"],
+        clientId=str(customer["clientId"]),
+        token=token,
+        name=customer.get("name"),
+        tokenType="bearer",
+    )
+
+
+@router.get("/me", response_model=UserProfileResponse)
+async def get_me(
+    client_id: int = Depends(get_current_client_id),
+    customer_repo: CustomerRepository = Depends(get_repository),
+):
+    """
+    Dynamically identify and return the profile of the authenticated caller
+    from their Bearer JWT token.
+    """
+    customer = customer_repo.get_customer(client_id)
+    if not customer:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={"error": "not_found", "message": "Customer record not found"},
+        )
+    return UserProfileResponse(
+        clientId=customer["clientId"],
+        name=customer["name"],
+        email=customer["email"],
+        status=customer["status"],
+    )
+
+
+@router.post("/verify", response_model=VerifyTokenResponse)
+async def verify_token_post(
+    payload: VerifyTokenRequest,
+    settings: Settings = Depends(get_settings),
+):
+    """
+    Dynamically verify an access token supplied in the request body.
+
+    Validates signature, expiration, and extracts claims without hardcoded values.
+    """
+    is_valid, claims, error_message = verify_access_token(payload.token.strip(), settings=settings)
+    if not is_valid or not claims:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail={"error": "invalid_token", "message": error_message or "Token is invalid"},
+        )
+
+    raw_id = claims.get("clientId") or claims.get("sub", "")
+    return VerifyTokenResponse(
+        valid=True,
+        clientId=str(raw_id),
+        email=claims.get("email", ""),
+        name=claims.get("name"),
+        claims=claims,
+    )
+
+
+@router.get("/verify", response_model=VerifyTokenResponse)
+async def verify_token_get(
+    credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(http_bearer)] = None,
+    token: Annotated[str | None, Query(description="Token to verify if not passed in header")] = None,
+    settings: Settings = Depends(get_settings),
+):
+    """
+    Dynamically verify an access token passed in Authorization header or query parameter.
+    """
+    bearer_token = token
+    if credentials and credentials.credentials.strip():
+        bearer_token = credentials.credentials.strip()
+
+    if not bearer_token:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"error": "missing_token", "message": "Token must be provided in Authorization header or token query parameter"},
+        )
+
+    is_valid, claims, error_message = verify_access_token(bearer_token.strip(), settings=settings)
+    if not is_valid or not claims:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail={"error": "invalid_token", "message": error_message or "Token is invalid"},
+        )
+
+    raw_id = claims.get("clientId") or claims.get("sub", "")
+    return VerifyTokenResponse(
+        valid=True,
+        clientId=str(raw_id),
+        email=claims.get("email", ""),
+        name=claims.get("name"),
+        claims=claims,
     )
