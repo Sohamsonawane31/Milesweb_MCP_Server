@@ -154,30 +154,53 @@ async def get_me(
     )
 
 
+def parse_token_input(token_str: str) -> str:
+    cleaned = token_str.strip().strip('"').strip("'")
+    if cleaned.lower().startswith("bearer "):
+        cleaned = cleaned[7:].strip()
+    return cleaned
+
+
 @router.post("/verify", response_model=VerifyTokenResponse)
 async def verify_token_post(
     payload: VerifyTokenRequest,
+    customer_repo: CustomerRepository = Depends(get_repository),
     settings: Settings = Depends(get_settings),
 ):
     """
     Dynamically verify an access token supplied in the request body.
 
     Validates signature, expiration, and extracts claims without hardcoded values.
+    Also supports development test tokens.
     """
-    is_valid, claims, error_message = verify_access_token(payload.token.strip(), settings=settings)
-    if not is_valid or not claims:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail={"error": "invalid_token", "message": error_message or "Token is invalid"},
+    token_clean = parse_token_input(payload.token)
+    is_valid, claims, error_message = verify_access_token(token_clean, settings=settings)
+    if is_valid and claims:
+        raw_id = claims.get("clientId") or claims.get("sub", "")
+        return VerifyTokenResponse(
+            valid=True,
+            clientId=str(raw_id),
+            email=claims.get("email", ""),
+            name=claims.get("name"),
+            claims=claims,
         )
 
-    raw_id = claims.get("clientId") or claims.get("sub", "")
-    return VerifyTokenResponse(
-        valid=True,
-        clientId=str(raw_id),
-        email=claims.get("email", ""),
-        name=claims.get("name"),
-        claims=claims,
+    # Development test tokens fallback (e.g. mock-token-rahul, mock-token-amit)
+    for item in settings.phase2_test_tokens.split(","):
+        test_token, separator, client_id = item.strip().partition(":")
+        if separator and test_token == token_clean and client_id.isdigit():
+            customer = customer_repo.get_customer(int(client_id))
+            return VerifyTokenResponse(
+                valid=True,
+                clientId=client_id,
+                email=customer.get("email", "") if customer else "",
+                name=customer.get("name") if customer else None,
+                claims={"sub": client_id, "clientId": int(client_id), "token_type": "test_token"},
+            )
+
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail={"error": "invalid_token", "message": error_message or "Token is invalid"},
     )
 
 
@@ -185,6 +208,7 @@ async def verify_token_post(
 async def verify_token_get(
     credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(http_bearer)] = None,
     token: Annotated[str | None, Query(description="Token to verify if not passed in header")] = None,
+    customer_repo: CustomerRepository = Depends(get_repository),
     settings: Settings = Depends(get_settings),
 ):
     """
@@ -200,18 +224,32 @@ async def verify_token_get(
             detail={"error": "missing_token", "message": "Token must be provided in Authorization header or token query parameter"},
         )
 
-    is_valid, claims, error_message = verify_access_token(bearer_token.strip(), settings=settings)
-    if not is_valid or not claims:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail={"error": "invalid_token", "message": error_message or "Token is invalid"},
+    token_clean = parse_token_input(bearer_token)
+    is_valid, claims, error_message = verify_access_token(token_clean, settings=settings)
+    if is_valid and claims:
+        raw_id = claims.get("clientId") or claims.get("sub", "")
+        return VerifyTokenResponse(
+            valid=True,
+            clientId=str(raw_id),
+            email=claims.get("email", ""),
+            name=claims.get("name"),
+            claims=claims,
         )
 
-    raw_id = claims.get("clientId") or claims.get("sub", "")
-    return VerifyTokenResponse(
-        valid=True,
-        clientId=str(raw_id),
-        email=claims.get("email", ""),
-        name=claims.get("name"),
-        claims=claims,
+    # Development test tokens fallback (e.g. mock-token-rahul, mock-token-amit)
+    for item in settings.phase2_test_tokens.split(","):
+        test_token, separator, client_id = item.strip().partition(":")
+        if separator and test_token == token_clean and client_id.isdigit():
+            customer = customer_repo.get_customer(int(client_id))
+            return VerifyTokenResponse(
+                valid=True,
+                clientId=client_id,
+                email=customer.get("email", "") if customer else "",
+                name=customer.get("name") if customer else None,
+                claims={"sub": client_id, "clientId": int(client_id), "token_type": "test_token"},
+            )
+
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail={"error": "invalid_token", "message": error_message or "Token is invalid"},
     )

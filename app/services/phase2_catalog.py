@@ -14,36 +14,143 @@ class Phase2Catalog:
             return json.load(source)["customers"]
 
     def customer(self, client_id: int) -> dict[str, Any] | None:
-        return next((item for item in self._customers() if item["clientId"] == client_id), None)
+        item = next((entry for entry in self._customers() if entry["clientId"] == client_id), None)
+        if item is not None:
+            return item
+
+        # Fallback to general customer repository so any registered customer has an account identity
+        try:
+            from app.customer_repository import repository
+            cust = repository.get_customer(client_id)
+            if cust is not None:
+                return {
+                    "clientId": cust["clientId"],
+                    "login": {
+                        "id": f"login-{cust['clientId']}-001",
+                        "email": cust["email"],
+                        "name": cust["name"],
+                        "colorCode": "#6b7280",
+                        "registeredAt": "2025-01-01T00:00:00Z",
+                        "authMethod": "basic",
+                        "locale": "en-IN",
+                    },
+                    "organization": None,
+                    "subscription": None,
+                    "website": None,
+                }
+        except Exception:
+            pass
+
+        return None
 
     def authorize(self, client_id: int, path: dict[str, str]) -> dict[str, Any] | None:
         """Return a record only when all supplied resource IDs belong to caller."""
         customer = self.customer(client_id)
         if customer is None:
             return None
-        if "org_id" in path and path["org_id"] != customer["organization"]["id"]:
-            return None
-        if "website_id" in path and path["website_id"] != customer["website"]["id"]:
-            return None
-        if "subscription_id" in path and str(path["subscription_id"]) != str(customer["subscription"]["id"]):
-            return None
-        if "app_id" in path and path["app_id"] != customer["website"]["appId"]:
-            return None
-        if "domain_id" in path and path["domain_id"] != customer["website"]["domainId"]:
-            return None
+
+        org = customer.get("organization")
+        website = customer.get("website")
+        subscription = customer.get("subscription")
+
+        if "org_id" in path:
+            if not org or path["org_id"] != org.get("id"):
+                return None
+        if "website_id" in path:
+            if not website or path["website_id"] != website.get("id"):
+                return None
+        if "subscription_id" in path:
+            if not subscription or str(path["subscription_id"]) != str(subscription.get("id")):
+                return None
+        if "app_id" in path:
+            if not website or path["app_id"] != website.get("appId"):
+                return None
+        if "domain_id" in path:
+            if not website or path["domain_id"] != website.get("domainId"):
+                return None
+
         return customer
 
     def response(self, operation: str, customer: dict[str, Any], query: dict[str, str]) -> dict[str, Any]:
-        login, org, subscription, website = (customer[key] for key in ("login", "organization", "subscription", "website"))
-        website_item = {"id": website["id"], "orgId": org["id"], "subscriptionId": subscription["id"], "domain": website["domain"], "status": website["status"], "server": website["server"]}
-        domain = {"id": website["domainId"], "domain": website["domain"], "isPrimary": True, "mappingKind": "primary"}
-        if operation == "getLogin": return login
-        if operation == "getLoginMemberships": return {"memberships": [{"memberId": login["id"], "orgId": org["id"], "orgName": org["name"], "isMasterOrg": True, "roles": ["Owner"], "siteAccessCount": 1}]}
-        if operation == "getOrg": return org
-        if operation == "getSubscriptionsToParent": return {"total": 1, "items": [subscription]}
-        if operation == "getSubscription": return subscription
-        if operation == "getSubscriptionBandwidthUsage": return subscription["bandwidthUsage"]
-        if operation == "getWebsites": return {"total": 1, "items": [website_item]}
+        login = customer.get("login") or {
+            "id": f"login-{customer.get('clientId', 'unknown')}-001",
+            "email": customer.get("email", ""),
+            "name": customer.get("name", ""),
+            "colorCode": "#6b7280",
+            "registeredAt": "2025-01-01T00:00:00Z",
+            "authMethod": "basic",
+            "locale": "en-IN",
+        }
+        org = customer.get("organization")
+        subscription = customer.get("subscription")
+        website = customer.get("website")
+
+        # Identity operations (work for all users, with or without hosting)
+        if operation == "getLogin":
+            return login
+
+        if operation == "getLoginMemberships":
+            if org:
+                return {
+                    "memberships": [
+                        {
+                            "memberId": login["id"],
+                            "orgId": org["id"],
+                            "orgName": org["name"],
+                            "isMasterOrg": True,
+                            "roles": ["Owner"],
+                            "siteAccessCount": 1 if website else 0,
+                        }
+                    ]
+                }
+            # User without active hosting organization has 0 memberships
+            return {"memberships": []}
+
+        if operation == "getOrg":
+            return org or {}
+
+        if operation == "getSubscriptionsToParent":
+            if subscription:
+                return {"total": 1, "items": [subscription]}
+            return {"total": 0, "items": []}
+
+        if operation == "getSubscription":
+            return subscription or {}
+
+        if operation == "getSubscriptionBandwidthUsage":
+            return subscription.get("bandwidthUsage", {}) if subscription else {}
+
+        if operation == "getWebsites":
+            if website and org and subscription:
+                website_item = {
+                    "id": website["id"],
+                    "orgId": org["id"],
+                    "subscriptionId": subscription["id"],
+                    "domain": website["domain"],
+                    "status": website["status"],
+                    "server": website["server"],
+                }
+                return {"total": 1, "items": [website_item]}
+            return {"total": 0, "items": []}
+
+        if not website:
+            return {"total": 0, "items": []}
+
+        website_item = {
+            "id": website["id"],
+            "orgId": org["id"] if org else "",
+            "subscriptionId": subscription["id"] if subscription else 0,
+            "domain": website["domain"],
+            "status": website["status"],
+            "server": website["server"],
+        }
+        domain = {
+            "id": website["domainId"],
+            "domain": website["domain"],
+            "isPrimary": True,
+            "mappingKind": "primary",
+        }
+
         if operation == "getWebsite": return website_item
         if operation == "getWebsiteDomainMappings": return {"total": 1, "items": [domain]}
         if operation == "getWebsiteDomainMappingDnsStatus": return {"status": "Connected", "lastCheckedAt": "2026-11-23T07:30:00Z"}
@@ -71,7 +178,8 @@ class Phase2Catalog:
         if operation == "getWebsiteEnabledPhpExtensions": return {"items": ["curl", "mbstring", "mysqli", "openssl"]}
         if operation == "getWebsiteLsphpSettings": return {"version": "8.3", "memoryLimit": "256M", "maxExecutionTime": 60}
         if operation == "getWebsitePhpErrorLog": return {"items": []}
-        if operation == "getOrgActivities": return {"total": 1, "items": [{"id": "activity-001", "orgId": org["id"], "kind": "added", "createdAt": "2026-11-20T10:00:00Z", "message": "Mock website created"}]}
+        if operation == "getOrgActivities": return {"total": 1, "items": [{"id": "activity-001", "orgId": org["id"] if org else "", "kind": "added", "createdAt": "2026-11-20T10:00:00Z", "message": "Mock website created"}]}
+
         return {"success": True, "data": []}
 
 

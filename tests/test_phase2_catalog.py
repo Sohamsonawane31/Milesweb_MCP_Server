@@ -92,3 +92,20 @@ def test_swagger_declares_both_phase2_authentication_schemes(client):
         ("authorization", "header"),
         ("X-Connector-Key", "header"),
     }
+
+
+def test_user_without_hosting_gets_empty_memberships_not_404(client):
+    """Users who have registered but have no active hosting get 200 with empty memberships."""
+    response = client.get("/login/memberships", headers=headers("test-token-priya"))
+    assert response.status_code == 200
+    assert response.json() == {"memberships": []}
+
+
+def test_user_without_hosting_can_access_login_profile(client):
+    response = client.get("/login", headers=headers("test-token-priya"))
+    assert response.status_code == 200
+    assert response.json()["email"] == "priya@example.com"
+
+
+def test_user_without_hosting_cannot_access_other_organizations(client):
+    assert client.get("/orgs/org-rahul-001", headers=headers("test-token-priya")).status_code == 404

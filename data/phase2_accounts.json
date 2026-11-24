@@ -20,6 +20,20 @@
       "organization": {"id": "org-neha-001", "name": "Neha Digital Store", "status": "active", "owner": "Neha Kulkarni", "ownerEmail": "neha@example.com", "subscriptionsCount": 2, "websitesCount": 1, "createdAt": "2025-01-14T08:15:00Z"},
       "subscription": {"id": 5003, "name": "Business Hosting", "status": "active", "plan": "Business Hosting", "bandwidthUsage": {"usage": 419430400, "total": 21474836480}},
       "website": {"id": "site-neha-001", "domain": "nehastore.example", "status": "suspended", "server": "in-mock-03", "appId": "app-neha-wp-001", "domainId": "domain-neha-001"}
+    },
+    {
+      "clientId": 12347,
+      "login": {"id": "login-priya-001", "email": "priya@example.com", "name": "Priya Joshi", "colorCode": "#ec4899", "registeredAt": "2025-06-10T11:00:00Z", "authMethod": "basic", "locale": "en-IN"},
+      "organization": null,
+      "subscription": null,
+      "website": null
+    },
+    {
+      "clientId": 12349,
+      "login": {"id": "login-karan-001", "email": "karan@example.com", "name": "Karan Deshmukh", "colorCode": "#eab308", "registeredAt": "2025-02-12T09:30:00Z", "authMethod": "basic", "locale": "en-IN"},
+      "organization": null,
+      "subscription": null,
+      "website": null
     }
   ]
 }
