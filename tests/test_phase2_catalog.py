@@ -5,9 +5,9 @@ def headers(token: str = "test-token-rahul"):
     return {"X-Connector-Key": "test-connector-key", "Authorization": f"Bearer {token}"}
 
 
-def test_all_35_phase2_get_routes_are_registered_and_respond(client):
+def test_all_42_phase2_get_routes_are_registered_and_respond(client):
     get_paths = {route.path for route in router.routes if "GET" in getattr(route, "methods", set())}
-    assert len(OPERATIONS) == 35
+    assert len(OPERATIONS) == 42
     assert {path for _, path in OPERATIONS}.issubset(get_paths)
     replacements = {
         "{org_id}": "org-rahul-001", "{website_id}": "site-rahul-001",

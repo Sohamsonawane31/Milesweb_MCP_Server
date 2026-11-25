@@ -65,33 +65,57 @@ def phase2_handler(operation: str) -> Callable:
         customer = data.authorize(client_id, dict(request.path_params))
         if customer is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Resource not found")
-        return data.response(operation, customer, dict(request.query_params))
+        return data.response(operation, customer, dict(request.query_params), dict(request.path_params))
 
     handler.__name__ = operation
     handler.__doc__ = f"Mock read-only response for Enhance operation {operation}."
     return handler
 
 
-# Every GET operation in enhance-api-MilesWeb-Phase2-GET.json. This explicit
-# catalog prevents accidentally exposing unreviewed write methods.
+# Every GET operation in the Enhance customer-facing read API catalog. This
+# explicit allow-list prevents accidentally exposing unreviewed write methods.
 OPERATIONS = [
-    ("getFtpUsers", "/orgs/{org_id}/websites/{website_id}/ftp/users"), ("getLogin", "/login"),
-    ("getLoginMemberships", "/login/memberships"), ("getOrg", "/orgs/{org_id}"),
-    ("getOrgActivities", "/v2/orgs/{org_id}/activities"), ("getSubscription", "/orgs/{org_id}/subscriptions/{subscription_id}"),
-    ("getSubscriptionBandwidthUsage", "/orgs/{org_id}/subscriptions/{subscription_id}/bandwidth"), ("getSubscriptionsToParent", "/orgs/{org_id}/subscriptions"),
-    ("getWebsite", "/orgs/{org_id}/websites/{website_id}"), ("getWebsiteApps", "/orgs/{org_id}/websites/{website_id}/apps"),
-    ("getWebsiteBackup", "/orgs/{org_id}/websites/{website_id}/backups/{backup_id}"), ("getWebsiteBackups", "/orgs/{org_id}/websites/{website_id}/backups"),
-    ("getWebsiteCgroupLimits", "/orgs/{org_id}/websites/{website_id}/cgroup_limits"), ("getWebsiteDomainDnsZone", "/orgs/{org_id}/websites/{website_id}/domains/{domain_id}/dns-zone"),
-    ("getWebsiteDomainMappingDnsStatus", "/orgs/{org_id}/websites/{website_id}/domains/{domain_id}/dns-status"), ("getWebsiteDomainMappings", "/orgs/{org_id}/websites/{website_id}/domains"),
-    ("getWebsiteDomainSslCert", "/v2/domains/{domain_id}/ssl"), ("getWebsiteEmails", "/orgs/{org_id}/websites/{website_id}/emails"),
-    ("getWebsiteEnabledPhpExtensions", "/websites/{website_id}/php_extensions"), ("getWebsiteFsQuotaLimits", "/orgs/{org_id}/websites/{website_id}/fs_quota_limits"),
-    ("getWebsiteGitDeploys", "/orgs/{org_id}/websites/{website_id}/git/deploys"), ("getWebsiteGitInfo", "/orgs/{org_id}/websites/{website_id}/git"),
-    ("getWebsiteLsphpSettings", "/websites/{website_id}/lsphp_settings"), ("getWebsiteMetrics", "/orgs/{org_id}/websites/{website_id}/metrics"),
-    ("getWebsiteMySQLDBs", "/orgs/{org_id}/websites/{website_id}/mysql-dbs"), ("getWebsiteMySQLUsers", "/orgs/{org_id}/websites/{website_id}/mysql-users"),
-    ("getWebsitePhpErrorLog", "/websites/{website_id}/php_error_log"), ("getWebsitePostgresqlDbs", "/orgs/{org_id}/websites/{website_id}/postgresql-dbs"),
-    ("getWebsitePostgresqlUsers", "/orgs/{org_id}/websites/{website_id}/postgresql-users"), ("getWebsiteSshKeys", "/orgs/{org_id}/websites/{website_id}/ssh/keys"),
-    ("getWebsites", "/orgs/{org_id}/websites"), ("getWordpressAppVersion", "/orgs/{org_id}/websites/{website_id}/apps/{app_id}/wordpress/version"),
-    ("getWordpressInfo", "/orgs/{org_id}/websites/{website_id}/apps/{app_id}/wordpress/info"), ("getWordpressPlugins", "/orgs/{org_id}/websites/{website_id}/apps/{app_id}/wordpress/plugins"),
+    ("getDomains", "/orgs/{org_id}/domains"),
+    ("getDomainAuthNs", "/orgs/{org_id}/domains/{domain_id}/auth-ns"),
+    ("getDomainLocalRemote", "/orgs/{org_id}/websites/{website_id}/domains/{domain_id}/local_remote"),
+    ("getFtpUsers", "/orgs/{org_id}/websites/{website_id}/ftp/users"),
+    ("getInstallableApps", "/orgs/{org_id}/subscriptions/{subscription_id}/installable-apps"),
+    ("getLogin", "/login"),
+    ("getLoginMemberships", "/login/memberships"),
+    ("getOrg", "/orgs/{org_id}"),
+    ("getOrgActivities", "/v2/orgs/{org_id}/activities"),
+    ("getSubscription", "/orgs/{org_id}/subscriptions/{subscription_id}"),
+    ("getSubscriptionBandwidthUsage", "/orgs/{org_id}/subscriptions/{subscription_id}/bandwidth"),
+    ("getSubscriptionsToParent", "/orgs/{org_id}/subscriptions"),
+    ("getWebsite", "/orgs/{org_id}/websites/{website_id}"),
+    ("getWebsiteApps", "/orgs/{org_id}/websites/{website_id}/apps"),
+    ("getWebsiteBackup", "/orgs/{org_id}/websites/{website_id}/backups/{backup_id}"),
+    ("getWebsiteBackups", "/orgs/{org_id}/websites/{website_id}/backups"),
+    ("getWebsiteBackupStatus", "/orgs/{org_id}/websites/{website_id}/status/backup"),
+    ("getWebsiteCgroupLimits", "/orgs/{org_id}/websites/{website_id}/cgroup_limits"),
+    ("getWebsiteDomainDnsZone", "/orgs/{org_id}/websites/{website_id}/domains/{domain_id}/dns-zone"),
+    ("getWebsiteDomainMapping", "/orgs/{org_id}/websites/{website_id}/domains/{domain_id}"),
+    ("getWebsiteDomainMappingDnsStatus", "/orgs/{org_id}/websites/{website_id}/domains/{domain_id}/dns-status"),
+    ("getWebsiteDomainMappings", "/orgs/{org_id}/websites/{website_id}/domains"),
+    ("getWebsiteDomainSslCert", "/v2/domains/{domain_id}/ssl"),
+    ("getWebsiteEmails", "/orgs/{org_id}/websites/{website_id}/emails"),
+    ("getWebsiteEnabledPhpExtensions", "/websites/{website_id}/php_extensions"),
+    ("getWebsiteFsQuotaLimits", "/orgs/{org_id}/websites/{website_id}/fs_quota_limits"),
+    ("getWebsiteGitDeploys", "/orgs/{org_id}/websites/{website_id}/git/deploys"),
+    ("getWebsiteGitInfo", "/orgs/{org_id}/websites/{website_id}/git"),
+    ("getWebsiteLsphpSettings", "/websites/{website_id}/lsphp_settings"),
+    ("getWebsiteMetrics", "/orgs/{org_id}/websites/{website_id}/metrics"),
+    ("getWebsiteMySQLDBs", "/orgs/{org_id}/websites/{website_id}/mysql-dbs"),
+    ("getWebsiteMySQLUsers", "/orgs/{org_id}/websites/{website_id}/mysql-users"),
+    ("getWebsitePhpErrorLog", "/websites/{website_id}/php_error_log"),
+    ("getWebsitePostgresqlDbs", "/orgs/{org_id}/websites/{website_id}/postgresql-dbs"),
+    ("getWebsitePostgresqlUsers", "/orgs/{org_id}/websites/{website_id}/postgresql-users"),
+    ("getWebsiteRestoreStatus", "/orgs/{org_id}/websites/{website_id}/backups/{backup_id}/restore_status"),
+    ("getWebsiteSshKeys", "/orgs/{org_id}/websites/{website_id}/ssh/keys"),
+    ("getWebsites", "/orgs/{org_id}/websites"),
+    ("getWordpressAppVersion", "/orgs/{org_id}/websites/{website_id}/apps/{app_id}/wordpress/version"),
+    ("getWordpressInfo", "/orgs/{org_id}/websites/{website_id}/apps/{app_id}/wordpress/info"),
+    ("getWordpressPlugins", "/orgs/{org_id}/websites/{website_id}/apps/{app_id}/wordpress/plugins"),
     ("getWordpressThemes", "/orgs/{org_id}/websites/{website_id}/apps/{app_id}/wordpress/themes"),
 ]
 

@@ -66,18 +66,27 @@ class Phase2Catalog:
             if not website or path["app_id"] != website.get("appId"):
                 return None
         if "domain_id" in path:
-            if not website:
-                return None
-            # Accept the primary domain ID or any additional domain mapping IDs
-            # registered on this website (multi-domain support).
-            allowed = {website.get("domainId")}
-            allowed.update(website.get("additionalDomainIds", []))
-            if path["domain_id"] not in allowed:
+            allowed = set()
+            if website:
+                allowed.add(website.get("domainId"))
+                allowed.update(website.get("additionalDomainIds", []))
+            for d in customer.get("domains", []):
+                if "domainId" in d:
+                    allowed.add(str(d["domainId"]))
+                    allowed.add(f"domain-{d['domainId']}")
+            allowed.discard(None)
+            if not allowed or path["domain_id"] not in allowed:
                 return None
 
         return customer
 
-    def response(self, operation: str, customer: dict[str, Any], query: dict[str, str]) -> dict[str, Any]:
+    def response(
+        self,
+        operation: str,
+        customer: dict[str, Any],
+        query: dict[str, str],
+        path: dict[str, str] | None = None,
+    ) -> dict[str, Any]:
         login = customer.get("login") or {
             "id": f"login-{customer.get('clientId', 'unknown')}-001",
             "email": customer.get("email", ""),
@@ -115,6 +124,67 @@ class Phase2Catalog:
         if operation == "getOrg":
             return org or {}
 
+        if operation == "getOrgActivities":
+            return {
+                "total": 1,
+                "items": [
+                    {
+                        "id": "activity-001",
+                        "orgId": org["id"] if org else "",
+                        "kind": "added",
+                        "createdAt": "2026-11-20T10:00:00Z",
+                        "message": "Mock website created",
+                    }
+                ],
+            }
+
+        if operation == "getDomains":
+            if not org:
+                return {"total": 0, "items": []}
+            items = []
+            if website:
+                items.append({
+                    "id": website.get("domainId", f"domain-{org['id']}-001"),
+                    "orgId": org["id"],
+                    "domain": website.get("domain", "example.com"),
+                    "dkim": True,
+                    "spf": True,
+                    "cloudflareStatus": "Connected",
+                    "cloudflareTokenFriendlyName": "MilesWeb Cloudflare",
+                })
+                for idx, add_id in enumerate(website.get("additionalDomainIds", []), 2):
+                    items.append({
+                        "id": add_id,
+                        "orgId": org["id"],
+                        "domain": f"extra{idx}.{website.get('domain', 'example.com')}",
+                        "dkim": True,
+                        "spf": True,
+                        "cloudflareStatus": "Connected",
+                        "cloudflareTokenFriendlyName": "MilesWeb Cloudflare",
+                    })
+            for d in customer.get("domains", []):
+                d_id = f"domain-{d['domainId']}"
+                if not any(item["id"] in (str(d["domainId"]), d_id) for item in items):
+                    items.append({
+                        "id": d_id,
+                        "orgId": org["id"],
+                        "domain": d.get("domainName", "domain.example"),
+                        "dkim": True,
+                        "spf": True,
+                        "cloudflareStatus": "Connected" if d.get("status") == "Active" else "Disconnected",
+                        "cloudflareTokenFriendlyName": "MilesWeb Cloudflare",
+                    })
+            return {"total": len(items), "items": items}
+
+        if operation == "getDomainAuthNs":
+            return {
+                "matchesPlatform": True,
+                "authNs": [
+                    {"name": "ns1.milesweb.com", "ips": ["198.51.100.1"]},
+                    {"name": "ns2.milesweb.com", "ips": ["198.51.100.2"]},
+                ],
+            }
+
         if operation == "getSubscriptionsToParent":
             if subscription:
                 return {"total": 1, "items": [subscription]}
@@ -125,6 +195,28 @@ class Phase2Catalog:
 
         if operation == "getSubscriptionBandwidthUsage":
             return subscription.get("bandwidthUsage", {}) if subscription else {}
+
+        if operation == "getInstallableApps":
+            return {
+                "items": [
+                    {
+                        "app": "wordpress",
+                        "version": "6.7.1",
+                        "isLatest": True,
+                        "description": "WordPress is web software you can use to create a beautiful website, blog, or app.",
+                        "size": 65000000,
+                        "createdAt": "2026-11-19T10:56:39.768Z",
+                    },
+                    {
+                        "app": "joomla",
+                        "version": "5.2.0",
+                        "isLatest": True,
+                        "description": "Joomla is a free and open-source content management system.",
+                        "size": 45000000,
+                        "createdAt": "2026-11-19T10:56:39.768Z",
+                    },
+                ]
+            }
 
         if operation == "getWebsites":
             if website and org and subscription:
@@ -159,9 +251,35 @@ class Phase2Catalog:
 
         if operation == "getWebsite": return website_item
         if operation == "getWebsiteDomainMappings": return {"total": 1, "items": [domain]}
+        if operation == "getWebsiteDomainMapping":
+            target_domain_id = (path or {}).get("domain_id", website["domainId"])
+            target_domain = website["domain"]
+            mapping_kind = "primary"
+            if target_domain_id != website.get("domainId"):
+                target_domain = f"extra.{website['domain']}"
+                mapping_kind = "addon"
+            return {
+                "domainId": target_domain_id,
+                "websiteId": website["id"],
+                "domain": target_domain,
+                "mappingKind": mapping_kind,
+                "documentRoot": "/public_html",
+                "cert": {
+                    "cn": target_domain,
+                    "expires": "2027-11-23T00:00:00Z",
+                    "issued": "2026-11-23T00:00:00Z",
+                    "issuer": "Mock Let's Encrypt",
+                    "sans": [target_domain],
+                    "forceHttps": True,
+                },
+                "cloudflareStatus": "Connected",
+                "cloudflareFriendlyName": "MilesWeb Cloudflare",
+                "cloudflareTokenId": "cf-token-001",
+            }
         if operation == "getWebsiteDomainMappingDnsStatus": return {"status": "Connected", "lastCheckedAt": "2026-11-23T07:30:00Z"}
         if operation == "getWebsiteDomainDnsZone": return {"domain": website["domain"], "records": [{"id": "dns-001", "kind": "A", "name": "@", "value": "198.51.100.42", "ttl": 3600}]}
         if operation == "getWebsiteDomainSslCert": return {"cn": website["domain"], "expires": "2027-11-23T00:00:00Z", "issued": "2026-11-23T00:00:00Z", "issuer": "Mock Let's Encrypt", "sans": [website["domain"]], "forceHttps": True}
+        if operation == "getDomainLocalRemote": return {"localRemote": "local"}
         if operation == "getWebsiteApps": return {"total": 1, "items": [{"id": website["appId"], "name": "WordPress", "kind": "wordpress", "status": "active"}]}
         if operation == "getWordpressInfo": return {"id": website["appId"], "name": "WordPress", "url": f"https://{website['domain']}", "version": "6.7.1"}
         if operation == "getWordpressAppVersion": return {"version": "6.7.1"}
@@ -169,6 +287,26 @@ class Phase2Catalog:
         if operation == "getWordpressThemes": return {"total": 1, "items": [{"name": "twentytwentyfour", "status": "active", "version": "1.3", "autoUpdate": "on"}]}
         if operation == "getWebsiteBackups": return {"total": 1, "items": [{"id": 9001, "createdAt": "2026-11-20T01:00:00Z", "size": 10485760, "status": "completed"}]}
         if operation == "getWebsiteBackup": return {"id": 9001, "createdAt": "2026-11-20T01:00:00Z", "size": 10485760, "status": "completed"}
+        if operation == "getWebsiteBackupStatus":
+            return {
+                "id": 9001,
+                "websiteId": website["id"],
+                "startedAt": "2026-11-20T01:00:00Z",
+                "action": "backup",
+                "homeDirStatus": "successful",
+                "mysqlDbsStatus": "successful",
+                "emailsStatus": "successful",
+            }
+        if operation == "getWebsiteRestoreStatus":
+            b_id = int((path or {}).get("backup_id", 9001))
+            return {
+                "backupId": b_id,
+                "startedAt": "2026-11-20T01:00:00Z",
+                "finishedAt": "2026-11-20T01:05:00Z",
+                "homeDirStatus": "successful",
+                "mysqlDbsStatus": "successful",
+                "emailsStatus": "successful",
+            }
         if operation == "getWebsiteEmails": return {"total": 1, "items": [{"email": f"hello@{website['domain']}", "status": "active", "quota": {"usage": 5242880, "total": 1073741824}}]}
         if operation == "getFtpUsers": return {"items": [{"account": "siteuser", "homeDir": f"/home/siteuser/{website['domain']}"}]}
         if operation == "getWebsiteMySQLDBs": return {"total": 1, "items": [{"name": "site_db", "size": 12582912}]}

@@ -156,49 +156,56 @@ curl.exe -H "X-Connector-Key: your-secret" `
 
 ---
 
-### 4. Phase 2 — Enhance Mock Operations (35 endpoints)
+### 4. Phase 2 — Enhance Mock Operations (42 endpoints)
 
-All 35 Enhance read-only GET operations from the supplied API catalog are implemented. Each request must include **both** `X-Connector-Key` and `Authorization: Bearer <token>`. Every `org_id`, `website_id`, `subscription_id`, `domain_id`, `backup_id`, and `app_id` in the path is validated against the authenticated customer — another customer's resource returns `404`.
+All 42 Enhance read-only GET operations from the supplied API catalog are implemented. Each request must include **both** `X-Connector-Key` and `Authorization: Bearer <token>`. Every `org_id`, `website_id`, `subscription_id`, `domain_id`, `backup_id`, and `app_id` in the path is validated against the authenticated customer — another customer's resource returns `404`.
 
 Websites may have multiple domain mapping IDs (primary + additional); **all** are checked during `domain_id` authorization.
 
-| Operation name | Path |
-| --- | --- |
-| `getLogin` | `GET /login` |
-| `getLoginMemberships` | `GET /login/memberships` |
-| `getOrg` | `GET /orgs/{org_id}` |
-| `getOrgActivities` | `GET /v2/orgs/{org_id}/activities` |
-| `getSubscriptionsToParent` | `GET /orgs/{org_id}/subscriptions` |
-| `getSubscription` | `GET /orgs/{org_id}/subscriptions/{subscription_id}` |
-| `getSubscriptionBandwidthUsage` | `GET /orgs/{org_id}/subscriptions/{subscription_id}/bandwidth` |
-| `getWebsites` | `GET /orgs/{org_id}/websites` |
-| `getWebsite` | `GET /orgs/{org_id}/websites/{website_id}` |
-| `getWebsiteApps` | `GET /orgs/{org_id}/websites/{website_id}/apps` |
-| `getWebsiteMetrics` | `GET /orgs/{org_id}/websites/{website_id}/metrics` |
-| `getWebsiteCgroupLimits` | `GET /orgs/{org_id}/websites/{website_id}/cgroup_limits` |
-| `getWebsiteFsQuotaLimits` | `GET /orgs/{org_id}/websites/{website_id}/fs_quota_limits` |
-| `getWebsiteDomainMappings` | `GET /orgs/{org_id}/websites/{website_id}/domains` |
-| `getWebsiteDomainDnsZone` | `GET /orgs/{org_id}/websites/{website_id}/domains/{domain_id}/dns-zone` |
-| `getWebsiteDomainMappingDnsStatus` | `GET /orgs/{org_id}/websites/{website_id}/domains/{domain_id}/dns-status` |
-| `getWebsiteDomainSslCert` | `GET /v2/domains/{domain_id}/ssl` |
-| `getWebsiteBackups` | `GET /orgs/{org_id}/websites/{website_id}/backups` |
-| `getWebsiteBackup` | `GET /orgs/{org_id}/websites/{website_id}/backups/{backup_id}` |
-| `getWebsiteEmails` | `GET /orgs/{org_id}/websites/{website_id}/emails` |
-| `getFtpUsers` | `GET /orgs/{org_id}/websites/{website_id}/ftp/users` |
-| `getWebsiteMySQLDBs` | `GET /orgs/{org_id}/websites/{website_id}/mysql-dbs` |
-| `getWebsiteMySQLUsers` | `GET /orgs/{org_id}/websites/{website_id}/mysql-users` |
-| `getWebsitePostgresqlDbs` | `GET /orgs/{org_id}/websites/{website_id}/postgresql-dbs` |
-| `getWebsitePostgresqlUsers` | `GET /orgs/{org_id}/websites/{website_id}/postgresql-users` |
-| `getWebsiteSshKeys` | `GET /orgs/{org_id}/websites/{website_id}/ssh/keys` |
-| `getWebsiteGitInfo` | `GET /orgs/{org_id}/websites/{website_id}/git` |
-| `getWebsiteGitDeploys` | `GET /orgs/{org_id}/websites/{website_id}/git/deploys` |
-| `getWebsiteEnabledPhpExtensions` | `GET /websites/{website_id}/php_extensions` |
-| `getWebsiteLsphpSettings` | `GET /websites/{website_id}/lsphp_settings` |
-| `getWebsitePhpErrorLog` | `GET /websites/{website_id}/php_error_log` |
-| `getWordpressInfo` | `GET /orgs/{org_id}/websites/{website_id}/apps/{app_id}/wordpress/info` |
-| `getWordpressPlugins` | `GET /orgs/{org_id}/websites/{website_id}/apps/{app_id}/wordpress/plugins` |
-| `getWordpressThemes` | `GET /orgs/{org_id}/websites/{website_id}/apps/{app_id}/wordpress/themes` |
-| `getWordpressAppVersion` | `GET /orgs/{org_id}/websites/{website_id}/apps/{app_id}/wordpress/version` |
+| Operation name | Path | Proposed MCP tool |
+| --- | --- | --- |
+| `getDomains` | `GET /orgs/{org_id}/domains` | `list_organization_domains` |
+| `getDomainAuthNs` | `GET /orgs/{org_id}/domains/{domain_id}/auth-ns` | `get_domain_nameservers` |
+| `getDomainLocalRemote` | `GET /orgs/{org_id}/websites/{website_id}/domains/{domain_id}/local_remote` | `get_domain_mail_routing` |
+| `getFtpUsers` | `GET /orgs/{org_id}/websites/{website_id}/ftp/users` | `get_ftp_users` |
+| `getInstallableApps` | `GET /orgs/{org_id}/subscriptions/{subscription_id}/installable-apps` | `list_subscription_installable_apps` |
+| `getLogin` | `GET /login` | `get_login` |
+| `getLoginMemberships` | `GET /login/memberships` | `get_login_memberships` |
+| `getOrg` | `GET /orgs/{org_id}` | `get_org` |
+| `getOrgActivities` | `GET /v2/orgs/{org_id}/activities` | `get_org_activities` |
+| `getSubscription` | `GET /orgs/{org_id}/subscriptions/{subscription_id}` | `get_subscription` |
+| `getSubscriptionBandwidthUsage` | `GET /orgs/{org_id}/subscriptions/{subscription_id}/bandwidth` | `get_bandwidth_usage` |
+| `getSubscriptionsToParent` | `GET /orgs/{org_id}/subscriptions` | `get_subscriptions` |
+| `getWebsite` | `GET /orgs/{org_id}/websites/{website_id}` | `get_website` |
+| `getWebsiteApps` | `GET /orgs/{org_id}/websites/{website_id}/apps` | `list_website_apps` |
+| `getWebsiteBackup` | `GET /orgs/{org_id}/websites/{website_id}/backups/{backup_id}` | `get_backup` |
+| `getWebsiteBackups` | `GET /orgs/{org_id}/websites/{website_id}/backups` | `list_backups` |
+| `getWebsiteBackupStatus` | `GET /orgs/{org_id}/websites/{website_id}/status/backup` | `get_website_backup_status` |
+| `getWebsiteCgroupLimits` | `GET /orgs/{org_id}/websites/{website_id}/cgroup_limits` | `get_cgroup_limits` |
+| `getWebsiteDomainDnsZone` | `GET /orgs/{org_id}/websites/{website_id}/domains/{domain_id}/dns-zone` | `get_dns_zone` |
+| `getWebsiteDomainMapping` | `GET /orgs/{org_id}/websites/{website_id}/domains/{domain_id}` | `get_website_domain_mapping` |
+| `getWebsiteDomainMappingDnsStatus` | `GET /orgs/{org_id}/websites/{website_id}/domains/{domain_id}/dns-status` | `get_dns_status` |
+| `getWebsiteDomainMappings` | `GET /orgs/{org_id}/websites/{website_id}/domains` | `list_website_domains` |
+| `getWebsiteDomainSslCert` | `GET /v2/domains/{domain_id}/ssl` | `get_ssl_cert` |
+| `getWebsiteEmails` | `GET /orgs/{org_id}/websites/{website_id}/emails` | `list_emails` |
+| `getWebsiteEnabledPhpExtensions` | `GET /websites/{website_id}/php_extensions` | `get_php_extensions` |
+| `getWebsiteFsQuotaLimits` | `GET /orgs/{org_id}/websites/{website_id}/fs_quota_limits` | `get_quota_limits` |
+| `getWebsiteGitDeploys` | `GET /orgs/{org_id}/websites/{website_id}/git/deploys` | `get_git_deploys` |
+| `getWebsiteGitInfo` | `GET /orgs/{org_id}/websites/{website_id}/git` | `get_git_info` |
+| `getWebsiteLsphpSettings` | `GET /websites/{website_id}/lsphp_settings` | `get_php_settings` |
+| `getWebsiteMetrics` | `GET /orgs/{org_id}/websites/{website_id}/metrics` | `get_metrics` |
+| `getWebsiteMySQLDBs` | `GET /orgs/{org_id}/websites/{website_id}/mysql-dbs` | `get_mysql_dbs` |
+| `getWebsiteMySQLUsers` | `GET /orgs/{org_id}/websites/{website_id}/mysql-users` | `get_mysql_users` |
+| `getWebsitePhpErrorLog` | `GET /websites/{website_id}/php_error_log` | `get_php_errors` |
+| `getWebsitePostgresqlDbs` | `GET /orgs/{org_id}/websites/{website_id}/postgresql-dbs` | `get_postgres_dbs` |
+| `getWebsitePostgresqlUsers` | `GET /orgs/{org_id}/websites/{website_id}/postgresql-users` | `get_postgres_users` |
+| `getWebsiteRestoreStatus` | `GET /orgs/{org_id}/websites/{website_id}/backups/{backup_id}/restore_status` | `get_website_restore_status` |
+| `getWebsiteSshKeys` | `GET /orgs/{org_id}/websites/{website_id}/ssh/keys` | `get_ssh_keys` |
+| `getWebsites` | `GET /orgs/{org_id}/websites` | `list_websites` |
+| `getWordpressAppVersion` | `GET /orgs/{org_id}/websites/{website_id}/apps/{app_id}/wordpress/version` | `get_wp_version` |
+| `getWordpressInfo` | `GET /orgs/{org_id}/websites/{website_id}/apps/{app_id}/wordpress/info` | `get_wp_info` |
+| `getWordpressPlugins` | `GET /orgs/{org_id}/websites/{website_id}/apps/{app_id}/wordpress/plugins` | `get_wp_plugins` |
+| `getWordpressThemes` | `GET /orgs/{org_id}/websites/{website_id}/apps/{app_id}/wordpress/themes` | `get_wp_themes` |
 
 ```powershell
 # Using a dynamic JWT token
@@ -240,7 +247,7 @@ curl.exe `
 .\.venv\Scripts\python.exe -m pytest -v
 ```
 
-**89 tests** covering:
+**105 tests** covering:
 - Login with valid / invalid credentials
 - Dynamic JWT creation, verification, and expiry
 - `/auth/me` and both `/auth/verify` variants
@@ -250,6 +257,7 @@ curl.exe `
 - Phase 2 authorization: own resources accepted, another customer's resources rejected
 - Cross-customer `org_id`, `website_id`, `subscription_id`, `domain_id`, `backup_id` rejection
 - Multi-domain ownership (primary + additional)
+- All 7 newly added batch operations (`getDomains`, `getDomainAuthNs`, `getWebsiteDomainMapping`, `getInstallableApps`, `getWebsiteBackupStatus`, `getWebsiteRestoreStatus`, `getDomainLocalRemote`) with authorized reads and cross-customer rejection
 - `getOrgActivities` endpoint
 - `getWebsiteMetrics` with `granularity` query param
 - `Phase2Catalog.customer()` fallback path
@@ -264,11 +272,11 @@ curl.exe `
 | Auth routes (login, me, verify ×2) | ✅ Complete |
 | `GET /health` | ✅ Complete |
 | Customer connector API (3 endpoints) | ✅ Complete |
-| All 35 Phase 2 Enhance mock operations | ✅ Complete |
-| Tenant isolation for all 5 path parameter types | ✅ Complete |
+| All 42 Phase 2 Enhance mock operations | ✅ Complete |
+| Tenant isolation for all path parameter types | ✅ Complete |
 | Multi-domain ownership enforcement | ✅ Complete |
 | PBKDF2 password hashing | ✅ Complete |
-| 89 tests — all passing | ✅ Complete |
+| 105 tests — all passing | ✅ Complete |
 | OpenAPI docs at `/docs` | ✅ Complete |
 | Static test token fallback for local dev | ✅ Complete |
 
@@ -289,7 +297,7 @@ The tool will combine multiple existing read-only Phase 2 operations to summariz
 - Backup availability
 - Suspended or degraded services
 
-**This mock backend requires zero changes to support the Health Report.** All 35 data sources it needs are already implemented and tested here.
+**This mock backend requires zero changes to support the Health Report.** All data sources it needs (including the 7 newly added operations) are already implemented and tested here.
 
 The Health Report implementation is entirely in `milesweb_mcp/app/mcp_server.py` on Nitin's machine (deployed at `https://milesweb-mcp-b2vu.onrender.com/mcp`).
 
