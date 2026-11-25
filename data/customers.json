@@ -4,67 +4,299 @@
       "clientId": 12345,
       "name": "Rahul Sharma",
       "email": "rahul@example.com",
-      "password": "password123",
+      "password_hash": "pbkdf2_sha256:bc7e27c46a552db5e8943c2f7a7059c6:3d350853660793a8b667de5167f119d77abfe84b1bdc5f096796fcaec306368d",
       "status": "Active",
       "hostingServices": [
-        {"serviceId": 1001, "domain": "rahulcloud.example", "hostingPlan": "Business Hosting", "status": "Active", "expiryDate": "2027-12-31"}
+        {
+          "serviceId": 1001,
+          "domain": "rahulcloud.example",
+          "hostingPlan": "Business Hosting",
+          "status": "Active",
+          "expiryDate": "2027-12-31"
+        }
       ],
       "domains": [
-        {"domainId": 2001, "domainName": "rahulcloud.example", "status": "Active", "registrationDate": "2025-12-31", "expiryDate": "2027-12-31", "autoRenew": true}
-      ]
+        {
+          "domainId": 2001,
+          "domainName": "rahulcloud.example",
+          "status": "Active",
+          "registrationDate": "2025-12-31",
+          "expiryDate": "2027-12-31",
+          "autoRenew": true
+        }
+      ],
+      "login": {
+        "id": "login-rahul-001",
+        "email": "rahul@example.com",
+        "name": "Rahul Sharma",
+        "colorCode": "#2563eb",
+        "registeredAt": "2025-03-12T09:00:00Z",
+        "authMethod": "basic",
+        "locale": "en-IN"
+      },
+      "organization": {
+        "id": "org-rahul-001",
+        "name": "Rahul Cloud Studio",
+        "status": "active",
+        "owner": "Rahul Sharma",
+        "ownerEmail": "rahul@example.com",
+        "subscriptionsCount": 1,
+        "websitesCount": 1,
+        "createdAt": "2025-03-12T09:00:00Z"
+      },
+      "subscription": {
+        "id": 5001,
+        "name": "Business Hosting",
+        "status": "active",
+        "plan": "Business Hosting",
+        "bandwidthUsage": {
+          "usage": 184320000,
+          "total": 10737418240
+        }
+      },
+      "website": {
+        "id": "site-rahul-001",
+        "domain": "rahulcloud.example",
+        "status": "active",
+        "server": "in-mock-01",
+        "appId": "app-rahul-wp-001",
+        "domainId": "domain-rahul-001",
+        "additionalDomainIds": ["domain-rahul-002"]
+      }
     },
     {
       "clientId": 12346,
       "name": "Amit Patil",
       "email": "amit@example.com",
-      "password": "password123",
+      "password_hash": "pbkdf2_sha256:89a62f7257542d5f1b3a7dca841ee604:d9619786db14a2600149ffbc636f5087ad58193717fee61d089eb31821823ae3",
       "status": "Active",
       "hostingServices": [
-        {"serviceId": 1002, "domain": "amitworkspace.example", "hostingPlan": "Shared Hosting", "status": "Active", "expiryDate": "2026-09-15"}
+        {
+          "serviceId": 1002,
+          "domain": "amitworkspace.example",
+          "hostingPlan": "Shared Hosting",
+          "status": "Active",
+          "expiryDate": "2026-09-15"
+        }
       ],
       "domains": [
-        {"domainId": 2002, "domainName": "amitworkspace.example", "status": "Active", "registrationDate": "2025-09-15", "expiryDate": "2026-09-15", "autoRenew": true},
-        {"domainId": 2003, "domainName": "amitportfolio.example", "status": "Pending", "registrationDate": "2026-10-03", "expiryDate": "2027-10-03", "autoRenew": true},
-        {"domainId": 2004, "domainName": "amitarchive.example", "status": "Expired", "registrationDate": "2024-05-01", "expiryDate": "2025-05-01", "autoRenew": false}
-      ]
+        {
+          "domainId": 2002,
+          "domainName": "amitworkspace.example",
+          "status": "Active",
+          "registrationDate": "2025-09-15",
+          "expiryDate": "2026-09-15",
+          "autoRenew": true
+        },
+        {
+          "domainId": 2003,
+          "domainName": "amitportfolio.example",
+          "status": "Pending",
+          "registrationDate": "2026-10-03",
+          "expiryDate": "2027-10-03",
+          "autoRenew": true
+        },
+        {
+          "domainId": 2004,
+          "domainName": "amitarchive.example",
+          "status": "Expired",
+          "registrationDate": "2024-05-01",
+          "expiryDate": "2025-05-01",
+          "autoRenew": false
+        }
+      ],
+      "login": {
+        "id": "login-amit-001",
+        "email": "amit@example.com",
+        "name": "Amit Patil",
+        "colorCode": "#16a34a",
+        "registeredAt": "2024-08-21T10:30:00Z",
+        "authMethod": "basic",
+        "locale": "en-IN"
+      },
+      "organization": {
+        "id": "org-amit-001",
+        "name": "Amit Web Works",
+        "status": "active",
+        "owner": "Amit Patil",
+        "ownerEmail": "amit@example.com",
+        "subscriptionsCount": 1,
+        "websitesCount": 1,
+        "createdAt": "2024-08-21T10:30:00Z"
+      },
+      "subscription": {
+        "id": 5002,
+        "name": "Shared Hosting",
+        "status": "active",
+        "plan": "Shared Hosting",
+        "bandwidthUsage": {
+          "usage": 94371840,
+          "total": 5368709120
+        }
+      },
+      "website": {
+        "id": "site-amit-001",
+        "domain": "amitworkspace.example",
+        "status": "active",
+        "server": "in-mock-02",
+        "appId": "app-amit-wp-001",
+        "domainId": "domain-amit-001",
+        "additionalDomainIds": []
+      }
     },
     {
       "clientId": 12347,
       "name": "Priya Joshi",
       "email": "priya@example.com",
-      "password": "password123",
+      "password_hash": "pbkdf2_sha256:163471b84582feee2ba8c084a4b0068f:94d22dd7743cf1b4225bfeaa81ce9dc5a85175a975787c0b142d6a3bc9c54e15",
       "status": "Active",
       "hostingServices": [],
-      "domains": []
+      "domains": [],
+      "login": {
+        "id": "login-priya-001",
+        "email": "priya@example.com",
+        "name": "Priya Joshi",
+        "colorCode": "#ec4899",
+        "registeredAt": "2025-06-10T11:00:00Z",
+        "authMethod": "basic",
+        "locale": "en-IN"
+      },
+      "organization": null,
+      "subscription": null,
+      "website": null
     },
     {
       "clientId": 12348,
       "name": "Neha Kulkarni",
       "email": "neha@example.com",
-      "password": "password123",
+      "password_hash": "pbkdf2_sha256:6ff9b3463c4804799826a6b2d93829c5:42e1d96b61ad4182a54b68e8885617f6d32840f7d2adf20d198d08fbfd751cc4",
       "status": "Active",
       "hostingServices": [
-        {"serviceId": 1003, "domain": "nehastore.example", "hostingPlan": "Business Hosting", "status": "Active", "expiryDate": "2027-03-20"},
-        {"serviceId": 1004, "domain": "nehablog.example", "hostingPlan": "WordPress Hosting", "status": "Suspended", "expiryDate": "2026-01-14"}
+        {
+          "serviceId": 1003,
+          "domain": "nehastore.example",
+          "hostingPlan": "Business Hosting",
+          "status": "Active",
+          "expiryDate": "2027-03-20"
+        },
+        {
+          "serviceId": 1004,
+          "domain": "nehablog.example",
+          "hostingPlan": "WordPress Hosting",
+          "status": "Suspended",
+          "expiryDate": "2026-01-14"
+        }
       ],
       "domains": [
-        {"domainId": 2005, "domainName": "nehastore.example", "status": "Active", "registrationDate": "2025-03-20", "expiryDate": "2027-03-20", "autoRenew": true},
-        {"domainId": 2006, "domainName": "nehablog.example", "status": "Active", "registrationDate": "2025-01-14", "expiryDate": "2026-01-14", "autoRenew": false},
-        {"domainId": 2007, "domainName": "nehadesigns.example", "status": "Pending", "registrationDate": "2026-11-01", "expiryDate": "2027-11-01", "autoRenew": true},
-        {"domainId": 2008, "domainName": "nehalabs.example", "status": "Expired", "registrationDate": "2024-08-08", "expiryDate": "2025-08-08", "autoRenew": false}
-      ]
+        {
+          "domainId": 2005,
+          "domainName": "nehastore.example",
+          "status": "Active",
+          "registrationDate": "2025-03-20",
+          "expiryDate": "2027-03-20",
+          "autoRenew": true
+        },
+        {
+          "domainId": 2006,
+          "domainName": "nehablog.example",
+          "status": "Active",
+          "registrationDate": "2025-01-14",
+          "expiryDate": "2026-01-14",
+          "autoRenew": false
+        },
+        {
+          "domainId": 2007,
+          "domainName": "nehadesigns.example",
+          "status": "Pending",
+          "registrationDate": "2026-11-01",
+          "expiryDate": "2027-11-01",
+          "autoRenew": true
+        },
+        {
+          "domainId": 2008,
+          "domainName": "nehalabs.example",
+          "status": "Expired",
+          "registrationDate": "2024-08-08",
+          "expiryDate": "2025-08-08",
+          "autoRenew": false
+        }
+      ],
+      "login": {
+        "id": "login-neha-001",
+        "email": "neha@example.com",
+        "name": "Neha Kulkarni",
+        "colorCode": "#9333ea",
+        "registeredAt": "2025-01-14T08:15:00Z",
+        "authMethod": "basic",
+        "locale": "en-IN"
+      },
+      "organization": {
+        "id": "org-neha-001",
+        "name": "Neha Digital Store",
+        "status": "active",
+        "owner": "Neha Kulkarni",
+        "ownerEmail": "neha@example.com",
+        "subscriptionsCount": 2,
+        "websitesCount": 1,
+        "createdAt": "2025-01-14T08:15:00Z"
+      },
+      "subscription": {
+        "id": 5003,
+        "name": "Business Hosting",
+        "status": "active",
+        "plan": "Business Hosting",
+        "bandwidthUsage": {
+          "usage": 419430400,
+          "total": 21474836480
+        }
+      },
+      "website": {
+        "id": "site-neha-001",
+        "domain": "nehastore.example",
+        "status": "suspended",
+        "server": "in-mock-03",
+        "appId": "app-neha-wp-001",
+        "domainId": "domain-neha-001",
+        "additionalDomainIds": []
+      }
     },
     {
       "clientId": 12349,
       "name": "Karan Deshmukh",
       "email": "karan@example.com",
-      "password": "password123",
+      "password_hash": "pbkdf2_sha256:2c112d65149852ad7058f56d1d423258:e2bd6bed649e3be1eee138147748cfd1889901e8a2804be7ae29cc1e7c90bafb",
       "status": "Active",
       "hostingServices": [],
       "domains": [
-        {"domainId": 2009, "domainName": "karanconsulting.example", "status": "Active", "registrationDate": "2025-06-30", "expiryDate": "2026-06-30", "autoRenew": true},
-        {"domainId": 2010, "domainName": "karanprojects.example", "status": "Suspended", "registrationDate": "2025-02-12", "expiryDate": "2026-02-12", "autoRenew": false}
-      ]
+        {
+          "domainId": 2009,
+          "domainName": "karanconsulting.example",
+          "status": "Active",
+          "registrationDate": "2025-06-30",
+          "expiryDate": "2026-06-30",
+          "autoRenew": true
+        },
+        {
+          "domainId": 2010,
+          "domainName": "karanprojects.example",
+          "status": "Suspended",
+          "registrationDate": "2025-02-12",
+          "expiryDate": "2026-02-12",
+          "autoRenew": false
+        }
+      ],
+      "login": {
+        "id": "login-karan-001",
+        "email": "karan@example.com",
+        "name": "Karan Deshmukh",
+        "colorCode": "#eab308",
+        "registeredAt": "2025-02-12T09:30:00Z",
+        "authMethod": "basic",
+        "locale": "en-IN"
+      },
+      "organization": null,
+      "subscription": null,
+      "website": null
     }
   ]
 }

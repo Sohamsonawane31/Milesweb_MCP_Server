@@ -7,7 +7,7 @@ from typing import Any
 
 class Phase2Catalog:
     def __init__(self, path: Path | None = None) -> None:
-        self.path = path or Path(__file__).resolve().parents[2] / "data" / "phase2_accounts.json"
+        self.path = path or Path(__file__).resolve().parents[2] / "data" / "customers.json"
 
     def _customers(self) -> list[dict[str, Any]]:
         with self.path.open(encoding="utf-8") as source:
@@ -66,7 +66,13 @@ class Phase2Catalog:
             if not website or path["app_id"] != website.get("appId"):
                 return None
         if "domain_id" in path:
-            if not website or path["domain_id"] != website.get("domainId"):
+            if not website:
+                return None
+            # Accept the primary domain ID or any additional domain mapping IDs
+            # registered on this website (multi-domain support).
+            allowed = {website.get("domainId")}
+            allowed.update(website.get("additionalDomainIds", []))
+            if path["domain_id"] not in allowed:
                 return None
 
         return customer

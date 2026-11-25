@@ -1,5 +1,7 @@
 """Authentication and token verification routes."""
 
+import hashlib
+import hmac
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Query, status
@@ -14,6 +16,26 @@ from app.services.token_service import (
     decode_access_token,
     verify_access_token,
 )
+
+
+def _verify_password(plain_password: str, stored: str) -> bool:
+    """Verify a password against a pbkdf2_sha256:{salt}:{hash} entry.
+
+    Uses constant-time comparison to prevent timing attacks.
+    Falls back to accepting any password when no hash is stored
+    (backward-compat only — all fixture entries must have a hash).
+    """
+    if not stored or not stored.startswith("pbkdf2_sha256:"):
+        # No hash configured — this customer entry is incomplete; deny access.
+        return False
+    try:
+        _, salt, expected_hex = stored.split(":", 2)
+    except ValueError:
+        return False
+    candidate_hex = hashlib.pbkdf2_hmac(
+        "sha256", plain_password.encode(), salt.encode(), 260000
+    ).hex()
+    return hmac.compare_digest(candidate_hex, expected_hex)
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -100,9 +122,9 @@ async def login(
             },
         )
 
-    # Validate password if configured on the customer fixture
-    expected_password = customer.get("password")
-    if expected_password and payload.password != expected_password:
+    # Validate password against the stored PBKDF2 hash
+    stored_hash = customer.get("password_hash")
+    if not _verify_password(payload.password, stored_hash or ""):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail={
